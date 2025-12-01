@@ -1,0 +1,13 @@
+﻿@model List<Domain.Interfaces.IItemValidating>
+
+<h2>Catalog</h2>
+
+<table class="table table-bordered">
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <!-- Dynamically choose which partial to render -->
+            @await Html.PartialAsync(item.GetCardPartial(), item)
+        }
+    </tbody>
+</table>
