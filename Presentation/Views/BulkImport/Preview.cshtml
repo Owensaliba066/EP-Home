@@ -1,0 +1,41 @@
+﻿@using Domain.Interfaces
+@model List<IItemValidating>
+
+@{
+    ViewData["Title"] = "Bulk Import - Preview";
+}
+
+<h1>Bulk Import – Preview</h1>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No items were parsed from the uploaded JSON file.</p>
+}
+else
+{
+    <p>Parsed @Model.Count item(s) from the uploaded JSON file.</p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Validators</th>
+                <th>Partial</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.GetType().Name</td>
+                    <td>@string.Join(", ", item.GetValidators())</td>
+                    <td>@item.GetCardPartial()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<form asp-action="Upload" asp-controller="BulkImport" method="get">
+    <button type="submit" class="btn btn-secondary">Back to Upload</button>
+</form>
