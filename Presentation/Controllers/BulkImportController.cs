@@ -1,26 +1,34 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using DataAccess.Repositories;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Factory;
-using Domain.Interfaces;
-using System.Collections.Generic;
 
 namespace Presentation.Controllers
 {
     public class BulkImportController : Controller
     {
         private readonly ImportItemFactory _factory;
+        private readonly ItemsInMemoryRepository _inMemoryRepository;
+        private readonly ItemsDbRepository _dbRepository;
 
-        public BulkImportController(ImportItemFactory factory)
+        public BulkImportController(
+            ImportItemFactory factory,
+            ItemsInMemoryRepository inMemoryRepository,
+            ItemsDbRepository dbRepository)
         {
             _factory = factory;
+            _inMemoryRepository = inMemoryRepository;
+            _dbRepository = dbRepository;
         }
 
         [HttpGet]
         public IActionResult Upload()
         {
-            // Later we will return a view with a file upload form.
             return View();
         }
 
@@ -40,18 +48,32 @@ namespace Presentation.Controllers
                 content = await reader.ReadToEndAsync();
             }
 
-            // Use the factory to parse the JSON into domain objects
+            // Parse JSON into domain objects
             List<IItemValidating> items = _factory.ParseItems(content);
 
-            // For now, just pass the list to a Preview view (we'll create it next).
+            // Save items temporarily in memory so Commit can read them
+            await _inMemoryRepository.ClearAsync();
+            await _inMemoryRepository.SaveAsync(items);
+
+            // Show preview
             return View("Preview", items);
         }
 
-        // We’ll flesh this out later when we implement saving to DB.
         [HttpPost]
-        public IActionResult Commit()
+        public async Task<IActionResult> Commit()
         {
-            TempData["Message"] = "Commit not implemented yet.";
+            var items = await _inMemoryRepository.GetAsync();
+
+            if (items == null || !items.Any())
+            {
+                TempData["Message"] = "No items to commit. Please upload a JSON file first.";
+                return RedirectToAction("Upload");
+            }
+
+            await _dbRepository.SaveAsync(items);
+            await _inMemoryRepository.ClearAsync();
+
+            TempData["Message"] = $"Committed {items.Count} item(s) to the database.";
             return RedirectToAction("Upload");
         }
     }
