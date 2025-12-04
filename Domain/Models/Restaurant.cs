@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using Domain.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
 {
-    public class Restaurant
+    public class Restaurant : IItemValidating
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -31,5 +33,18 @@ namespace Domain.Models
 
         [MaxLength(50)]
         public string? Phone { get; set; }
+
+        public List<string> GetValidators()
+        {
+            return new List<string>
+            {
+                "siteadmin@example.com"
+            };
+        }
+
+        public string GetCardPartial()
+        {
+            return "_RestaurantCard";
+        }
     }
 }

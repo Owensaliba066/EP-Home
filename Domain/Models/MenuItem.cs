@@ -1,10 +1,12 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using Domain.Interfaces;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
 {
-    public class MenuItem
+    public class MenuItem : IItemValidating
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -31,5 +33,22 @@ namespace Domain.Models
 
         [MaxLength(3)]
         public string? Currency { get; set; } = "EUR";
+
+        public List<string> GetValidators()
+        {
+            var emails = new List<string>();
+
+            if (Restaurant != null && !string.IsNullOrWhiteSpace(Restaurant.OwnerEmailAddress))
+            {
+                emails.Add(Restaurant.OwnerEmailAddress);
+            }
+
+            return emails;
+        }
+
+        public string GetCardPartial()
+        {
+            return "_MenuItemRow";
+        }
     }
 }
