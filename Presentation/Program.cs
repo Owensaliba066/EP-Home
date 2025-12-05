@@ -9,13 +9,16 @@ using Presentation.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+        options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -27,11 +30,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ItemsInMemoryRepository>();
 builder.Services.AddScoped<ItemsDbRepository>();
-
 builder.Services.AddSingleton<ImportItemFactory>();
 
-var app = builder.Build();
+builder.Services.AddScoped<Presentation.Filters.RestaurantApprovalFilter>();
+builder.Services.AddScoped<Presentation.Filters.MenuItemApprovalFilter>();
 
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,6 +54,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Add authentication before authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

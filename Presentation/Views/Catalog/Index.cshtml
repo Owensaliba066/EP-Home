@@ -2,12 +2,9 @@
 
 <h2>Catalog</h2>
 
-<table class="table table-bordered">
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <!-- Dynamically choose which partial to render -->
-            @await Html.PartialAsync(item.GetCardPartial(), item)
-        }
-    </tbody>
-</table>
+<div class="container">
+    @foreach (var item in Model)
+    {
+        @await Html.PartialAsync(item.GetCardPartial(), item)
+    }
+</div>

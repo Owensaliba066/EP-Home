@@ -1,30 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DataAccess.Context;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using DataAccess.Repositories;
 using Domain.Interfaces;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
     public class CatalogController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly ItemsDbRepository _dbRepository;
 
-        public CatalogController(AppDbContext db)
+        public CatalogController(ItemsDbRepository dbRepository)
         {
-            _db = db;
+            _dbRepository = dbRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            // Load restaurants + menu items
-            var restaurants = _db.Restaurants.ToList();
-            var menuItems = _db.MenuItems.ToList();
-
-            // Combine into a single polymorphic list
-            List<IItemValidating> items = new List<IItemValidating>();
-            items.AddRange(restaurants);
-            items.AddRange(menuItems);
-
+            // Only approved items are returned by ItemsDbRepository.GetAsync()
+            List<IItemValidating> items = await _dbRepository.GetAsync();
             return View(items);
         }
     }

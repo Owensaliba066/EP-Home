@@ -34,6 +34,9 @@ namespace Domain.Models
         [MaxLength(50)]
         public string? Phone { get; set; }
 
+        [MaxLength(500)]
+        public string? ImageFileName { get; set; }
+
         public List<string> GetValidators()
         {
             return new List<string>

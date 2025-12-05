@@ -34,6 +34,9 @@ namespace Domain.Models
         [MaxLength(3)]
         public string? Currency { get; set; } = "EUR";
 
+        [MaxLength(500)]
+        public string? ImageFileName { get; set; }
+
         public List<string> GetValidators()
         {
             var emails = new List<string>();

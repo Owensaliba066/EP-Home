@@ -1,17 +1,38 @@
 ﻿@model Domain.Models.Restaurant
 
-<div class="card mb-3 shadow-sm p-3">
-    <h4 class="card-title">@Model.Name</h4>
+<div class="card mb-3 shadow">
+    <div class="row g-0">
 
-    @if (!string.IsNullOrWhiteSpace(Model.Description))
-    {
-        <p>@Model.Description</p>
-    }
+        <div class="col-md-3">
+            @if (!string.IsNullOrEmpty(Model.ImageFileName))
+            {
+                <img src="@Model.ImageFileName"
+                     alt="@Model.Name"
+                     class="img-fluid rounded-start"
+                     style="object-fit: cover; height: 180px; width: 100%;" />
+            }
+            else
+            {
+                <div class="bg-light d-flex align-items-center justify-content-center"
+                     style="height: 180px;">
+                    <span class="text-muted">No Image</span>
+                </div>
+            }
+        </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.Address))
-    {
-        <p><strong>Address:</strong> @Model.Address</p>
-    }
+        <div class="col-md-9">
+            <div class="card-body">
+                <h4 class="card-title">@Model.Name</h4>
 
-    <p><strong>Status:</strong> @Model.Status</p>
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="card-text">@Model.Description</p>
+                }
+
+                <p><b>Address:</b> @Model.Address</p>
+                <p><b>Status:</b> @Model.Status</p>
+            </div>
+        </div>
+
+    </div>
 </div>

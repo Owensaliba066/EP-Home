@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Domain.Models.Restaurant>
+
+@{
+    ViewData["Title"] = "Your Restaurants";
+}
+
+<h1>Your Restaurants</h1>
+
+@if (!Model.Any())
+{
+    <p>You do not own any restaurants yet.</p>
+}
+else
+{
+    <p>Select a restaurant to see its pending menu items.</p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Pending Items</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@r.Status</td>
+                    <td>
+                        <a asp-action="Index"
+                           asp-route-restaurantId="@r.Id"
+                           class="btn btn-primary btn-sm">
+                            View Pending Menu Items
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

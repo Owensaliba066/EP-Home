@@ -1,5 +1,4 @@
 ﻿@using Domain.Interfaces
-@using Domain.Models
 @model IEnumerable<IItemValidating>
 
 @{
@@ -16,45 +15,25 @@
     <thead>
         <tr>
             <th>Type</th>
-            <th>Validators</th>
-            <th>Partial</th>
+            <th>Validator(s)</th>
+            <th>Partial View</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            string typeName;
-            string partialName;
-
-            if (item is Restaurant)
-            {
-                typeName = "Restaurant";
-                partialName = "_RestaurantCard";
-            }
-            else if (item is MenuItem)
-            {
-                typeName = "MenuItem";
-                partialName = "_MenuItemCard";
-            }
-            else
-            {
-                typeName = item.GetType().Name;
-                partialName = "N/A";
-            }
-
-            // In the class demo, a fixed validator email is used
-            string validatorEmail = "siteadmin@example.com";
+            string typeName = item.GetType().Name;
+            string validatorEmails = string.Join(", ", item.GetValidators());
+            string partialName = item.GetCardPartial();
 
             <tr>
                 <td>@typeName</td>
-                <td>@validatorEmail</td>
+                <td>@validatorEmails</td>
                 <td>@partialName</td>
             </tr>
         }
     </tbody>
 </table>
-
-<hr />
 
 @if (TempData["Message"] != null)
 {
@@ -63,23 +42,21 @@
     </div>
 }
 
-<!-- Back to upload -->
-<form asp-action="Upload" asp-controller="BulkImport" method="get" class="mb-2">
-    <button type="submit" class="btn btn-secondary">Back to Upload</button>
-</form>
+<hr />
 
-<!-- Download template ZIP -->
-<form asp-action="DownloadImagesTemplate" asp-controller="BulkImport" method="get" class="mb-2">
-    <button type="submit" class="btn btn-info">Download image template ZIP</button>
-</form>
+<h2>Images</h2>
 
-<!-- Commit items + optional images ZIP -->
-<form asp-action="Commit"
-      asp-controller="BulkImport"
-      method="post"
-      enctype="multipart/form-data"
-      class="mb-2">
+<p>
+    You can optionally provide images for each item using a ZIP file.
+</p>
 
+<p>
+    <a asp-action="DownloadImagesTemplate" class="btn btn-secondary">
+        Download Images Template ZIP
+    </a>
+</p>
+
+<form asp-action="Commit" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label for="imagesZip" class="form-label">Images ZIP (optional)</label>
         <input type="file"
