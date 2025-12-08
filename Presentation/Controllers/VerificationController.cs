@@ -75,7 +75,7 @@ namespace Presentation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ServiceFilter(typeof(MenuItemApprovalFilter))]
-        public async Task<IActionResult> ApproveMenuItems(int restaurantId, Guid[] selectedMenuItemIds)
+        public async Task<IActionResult> ApproveMenuItems(int restaurantId, int[] selectedMenuItemIds)
         {
             if (selectedMenuItemIds == null || selectedMenuItemIds.Length == 0)
             {

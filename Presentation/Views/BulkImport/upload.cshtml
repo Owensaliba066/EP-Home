@@ -1,24 +1,28 @@
 ﻿@{
-    ViewData["Title"] = "Bulk Import - Upload";
+    ViewData["Title"] = "Bulk Import";
 }
 
-<h1>Bulk Import – Upload JSON</h1>
+<h1>Bulk Import</h1>
 
-<form asp-action="Upload" asp-controller="BulkImport" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="jsonFile">JSON file</label>
-        <input type="file" name="jsonFile" id="jsonFile" class="form-control" />
+<p class="text-muted">
+    Upload a JSON file containing restaurants and menu items. After parsing, you&#39;ll see a preview,
+    be able to download an images template ZIP, and then optionally upload images before committing
+    everything to the database.
+</p>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="jsonFile" class="form-label">JSON file</label>
+        <input type="file"
+               class="form-control"
+               id="jsonFile"
+               name="jsonFile"
+               accept=".json" />
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Upload &amp; Preview</button>
+    <button type="submit" class="btn btn-primary">Upload &amp; Preview</button>
 </form>
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="text-danger mt-3">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <div>@error.ErrorMessage</div>
-        }
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

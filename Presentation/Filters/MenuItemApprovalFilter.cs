@@ -33,9 +33,8 @@ namespace Presentation.Filters
 
             var userEmail = user.Identity.Name ?? string.Empty;
 
-            // Expecting the action to have a Guid[] parameter named "selectedMenuItemIds"
             if (!context.ActionArguments.TryGetValue("selectedMenuItemIds", out var value) ||
-                value is not Guid[] ids ||
+                value is not int[] ids ||
                 ids.Length == 0)
             {
                 await next();

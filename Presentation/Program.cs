@@ -26,7 +26,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllersWithViews();
 
-// Phase 5 services (simple constructor injection)
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ItemsInMemoryRepository>();
 builder.Services.AddScoped<ItemsDbRepository>();

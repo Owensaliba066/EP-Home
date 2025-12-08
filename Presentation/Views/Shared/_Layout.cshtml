@@ -31,19 +31,26 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="BulkImport" asp-action="Upload">Bulk Import</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Verification" asp-action="Index">
-                                Verification
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Verification" asp-action="Index">Verification</a>
                         </li>
-
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
+            @* Global place to show TempData["Message"] after redirects *@
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    @TempData["Message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             @RenderBody()
         </main>
     </div>

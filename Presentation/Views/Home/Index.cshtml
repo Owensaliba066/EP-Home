@@ -1,8 +1,64 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold">EP Home</h1>
+        <p class="col-md-8 fs-5">
+            EP Home is a small restaurant catalogue that demonstrates JSON bulk import,
+            image handling, and a secure approval workflow using ASP.NET Core, EF Core and Identity.
+        </p>
+
+        <h4>How it works</h4>
+        <ol class="fs-6">
+            <li>Use <strong>Bulk Import</strong> to upload a JSON file with restaurants and menu items.</li>
+            <li>
+                On the preview screen, download the images template ZIP, replace
+                <code>default.jpg</code> images, and upload the new ZIP, then commit to the database.
+            </li>
+            <li>Log in and use <strong>Verification</strong> to approve pending restaurants and their menu items.</li>
+            <li>Browse the public <strong>Catalog</strong> to see only approved restaurants and menu items, with images.</li>
+        </ol>
+
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <a class="btn btn-primary btn-lg"
+               asp-area=""
+               asp-controller="Catalog"
+               asp-action="Index">
+                View Catalog
+            </a>
+
+            <a class="btn btn-outline-primary btn-lg"
+               asp-area=""
+               asp-controller="BulkImport"
+               asp-action="Upload">
+                Bulk Import JSON
+            </a>
+
+            <a class="btn btn-outline-secondary btn-lg"
+               asp-area=""
+               asp-controller="Verification"
+               asp-action="Index">
+                Verification
+            </a>
+        </div>
+
+        <div class="mt-4">
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <p class="text-success mb-0">
+                    Logged in as @User.Identity.Name.
+                    Use the <strong>Verification</strong> link to approve pending items.
+                </p>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    You can browse the approved catalog without logging in.
+                    To approve items, please register or log in using the links in the top-right corner.
+                </p>
+            }
+        </div>
+    </div>
 </div>

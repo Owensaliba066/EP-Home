@@ -52,6 +52,7 @@ namespace DataAccess.Repositories
             var restaurants = items.OfType<Restaurant>().ToList();
             var menuItems = items.OfType<MenuItem>().ToList();
 
+            // Ensure default status
             foreach (var restaurant in restaurants)
             {
                 if (string.IsNullOrWhiteSpace(restaurant.Status))
@@ -68,21 +69,36 @@ namespace DataAccess.Repositories
                 }
             }
 
+            // Save restaurants first so EF gives them int IDs
             if (restaurants.Any())
             {
                 _db.Restaurants.AddRange(restaurants);
+                await _db.SaveChangesAsync();
             }
 
+            // Build a map ExternalId -> int Id for the restaurants we just saved
+            var restaurantIdLookup = restaurants
+                .Where(r => !string.IsNullOrWhiteSpace(r.ExternalId))
+                .ToDictionary(r => r.ExternalId, r => r.Id);
+
+            // Wire menu items to restaurants using RestaurantExternalId from JSON
+            foreach (var menuItem in menuItems)
+            {
+                if (!string.IsNullOrWhiteSpace(menuItem.RestaurantExternalId) &&
+                    restaurantIdLookup.TryGetValue(menuItem.RestaurantExternalId, out var restaurantId))
+                {
+                    menuItem.RestaurantId = restaurantId;
+                }
+            }
+
+            // Save menu items
             if (menuItems.Any())
             {
                 _db.MenuItems.AddRange(menuItems);
-            }
-
-            if (restaurants.Any() || menuItems.Any())
-            {
                 await _db.SaveChangesAsync();
             }
         }
+
 
         public Task ClearAsync()
         {
@@ -150,9 +166,9 @@ namespace DataAccess.Repositories
         /// <summary>
         /// Approve multiple menu items by id (sets Status = "Approved").
         /// </summary>
-        public async Task ApproveMenuItemsAsync(IEnumerable<Guid> menuItemIds)
+        public async Task ApproveMenuItemsAsync(IEnumerable<int> menuItemIds)
         {
-            var ids = menuItemIds?.ToList() ?? new List<Guid>();
+            var ids = menuItemIds?.ToList() ?? new List<int>();
             if (!ids.Any())
             {
                 return;
@@ -172,5 +188,6 @@ namespace DataAccess.Repositories
                 await _db.SaveChangesAsync();
             }
         }
+
     }
 }

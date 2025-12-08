@@ -37,56 +37,80 @@ namespace Presentation.Factory
                 return result;
             }
 
-            using var document = JsonDocument.Parse(jsonContent);
-            var root = document.RootElement;
+            JsonDocument document;
 
-            if (root.ValueKind != JsonValueKind.Array)
+            try
             {
-                // We expect an array at the root – if not, just return empty for now.
-                return result;
+                document = JsonDocument.Parse(jsonContent);
+            }
+            catch (Exception ex)
+            {
+                // If this throws, the JSON itself is invalid.
+                throw new ApplicationException("Invalid JSON: could not parse content.", ex);
             }
 
-            foreach (var element in root.EnumerateArray())
+            using (document)
             {
-                if (!element.TryGetProperty("type", out var typeProp))
+                var root = document.RootElement;
+
+                // If someone wrapped it like { "items": [ ... ] }, support that too:
+                if (root.ValueKind == JsonValueKind.Object &&
+                    root.TryGetProperty("items", out var itemsElement) &&
+                    itemsElement.ValueKind == JsonValueKind.Array)
                 {
-                    // Skip items that don't declare a type
-                    continue;
+                    root = itemsElement;
                 }
 
-                var type = typeProp.GetString()?.ToLowerInvariant();
-
-                try
+                if (root.ValueKind != JsonValueKind.Array)
                 {
+                    throw new ApplicationException(
+                        $"Expected JSON array at the root (or an 'items' array), but got {root.ValueKind}.");
+                }
+
+                foreach (var element in root.EnumerateArray())
+                {
+                    if (!element.TryGetProperty("type", out var typeProp))
+                    {
+                        // no type -> skip
+                        continue;
+                    }
+
+                    var type = typeProp.GetString()?.ToLowerInvariant();
+
+                    var rawItemJson = element.GetRawText();
+
                     switch (type)
                     {
                         case "restaurant":
-                            var restaurant = element.Deserialize<Restaurant>(_jsonOptions);
-                            if (restaurant != null)
                             {
+                                var restaurant = JsonSerializer.Deserialize<Restaurant>(rawItemJson, _jsonOptions);
+                                if (restaurant == null)
+                                {
+                                    throw new ApplicationException(
+                                        "Failed to deserialize a restaurant item: " + rawItemJson);
+                                }
                                 result.Add(restaurant);
+                                break;
                             }
-                            break;
 
                         case "menuitem":
                         case "menu_item":
                         case "menu-item":
-                            var menuItem = element.Deserialize<MenuItem>(_jsonOptions);
-                            if (menuItem != null)
                             {
+                                var menuItem = JsonSerializer.Deserialize<MenuItem>(rawItemJson, _jsonOptions);
+                                if (menuItem == null)
+                                {
+                                    throw new ApplicationException(
+                                        "Failed to deserialize a menu item: " + rawItemJson);
+                                }
                                 result.Add(menuItem);
+                                break;
                             }
-                            break;
 
                         default:
-                            // Unknown type – ignore for now
+                            // Unknown type -> ignore for now
                             break;
                     }
-                }
-                catch (Exception)
-                {
-                    // If one item fails to deserialize, just skip it.
-                    // We keep this silent for now; later we can log it if needed.
                 }
             }
 
