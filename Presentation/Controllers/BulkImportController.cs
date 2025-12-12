@@ -114,7 +114,7 @@ namespace Presentation.Controllers
             return File(ms.ToArray(), "application/zip", "images-template.zip");
         }
 
-        // COMMIT JSON + OPTIONAL IMAGES ZIP
+        // Commit JSON
         [HttpPost]
         public async Task<IActionResult> Commit(IFormFile imagesZip)
         {
@@ -126,7 +126,7 @@ namespace Presentation.Controllers
                 return RedirectToAction("Upload");
             }
 
-            // 1) Extract images ZIP into wwwroot/images/import
+            // Extract images ZIP
             string webRoot = _environment.WebRootPath;
             string imagesRoot = Path.Combine(webRoot, "images", "import");
             Directory.CreateDirectory(imagesRoot);
@@ -153,7 +153,7 @@ namespace Presentation.Controllers
                 }
             }
 
-            // 2) Map extracted images to items (restaurant-1/default.jpg, etc.)
+            // Map extracted images to items
             if (imagesZip != null && imagesZip.Length > 0)
             {
                 for (int i = 0; i < items.Count; i++)
@@ -172,13 +172,12 @@ namespace Presentation.Controllers
 
                     if (System.IO.File.Exists(sourcePath))
                     {
-                        // Generate unique file name at the root of /images/import
+                        // Generate unique file name at the root
                         string uniqueName = $"{prefix}-{Guid.NewGuid():N}.jpg";
                         string destPath = Path.Combine(imagesRoot, uniqueName);
 
                         System.IO.File.Copy(sourcePath, destPath, overwrite: true);
 
-                        // This is the path that will be used in <img src="...">
                         string relativePath = $"/images/import/{uniqueName}";
 
                         if (item is Restaurant r)
@@ -193,10 +192,10 @@ namespace Presentation.Controllers
                 }
             }
 
-            // 3) Save items to database
+            // Save items to database
             await _dbRepository.SaveAsync(items);
 
-            // 4) Clear in-memory store after commit
+            // Clear in-memory store after commit
             await _inMemoryRepository.ClearAsync();
 
             TempData["Message"] = $"Committed {items.Count} item(s) to the database.";

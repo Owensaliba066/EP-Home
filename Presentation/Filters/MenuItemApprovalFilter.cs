@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Presentation.Filters
 {
+    //Action filter that checks whether the current user is allowed to approve or reject the selected menu items.
     public class MenuItemApprovalFilter : IAsyncActionFilter
     {
         private readonly AppDbContext _db;
@@ -24,7 +25,7 @@ namespace Presentation.Filters
             ActionExecutionDelegate next)
         {
             var user = context.HttpContext.User;
-
+            // User must be logged in to perform approval actions
             if (user?.Identity == null || !user.Identity.IsAuthenticated)
             {
                 context.Result = new ForbidResult();
@@ -51,6 +52,7 @@ namespace Presentation.Filters
                 var item = (IItemValidating)menuItem;
                 var validators = item.GetValidators();
 
+                // If the current user is not one of the validators, block the action.
                 if (!validators.Any(v =>
                         string.Equals(v, userEmail, StringComparison.OrdinalIgnoreCase)))
                 {

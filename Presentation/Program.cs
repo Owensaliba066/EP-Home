@@ -62,4 +62,16 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var appDb = services.GetRequiredService<AppDbContext>();
+    appDb.Database.Migrate();
+
+    var identityDb = services.GetRequiredService<ApplicationDbContext>();
+    identityDb.Database.Migrate();
+}
+
+
 app.Run();

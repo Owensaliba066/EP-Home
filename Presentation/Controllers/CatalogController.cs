@@ -10,6 +10,7 @@ namespace Presentation.Controllers
     {
         private readonly ItemsDbRepository _dbRepository;
 
+        // Shows the public catalog of already approved menu items
         public CatalogController(ItemsDbRepository dbRepository)
         {
             _dbRepository = dbRepository;

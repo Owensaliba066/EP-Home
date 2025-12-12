@@ -14,9 +14,9 @@ namespace Presentation.Controllers
     {
         private readonly ItemsDbRepository _dbRepository;
 
-        // Keep this consistent with Restaurant.GetValidators()
         private const string SiteAdminEmail = "siteadmin@example.com";
 
+        // Used by the admin to review and approve/reject restaurants and menu items
         public VerificationController(ItemsDbRepository dbRepository)
         {
             _dbRepository = dbRepository;
@@ -42,13 +42,12 @@ namespace Presentation.Controllers
             // Normal user (restaurant owner)
             if (restaurantId == null)
             {
-                // Step 1: show owned restaurants (click to drill into menu items)
+                // Show owned restaurants
                 var ownedRestaurants = await _dbRepository.GetOwnedRestaurantsAsync(userEmail);
                 return View("OwnedRestaurants", ownedRestaurants);
             }
             else
             {
-                // Step 2: for a chosen restaurant, show its pending menu items
                 var pendingMenuItems = await _dbRepository.GetPendingMenuItemsForRestaurantAsync(restaurantId.Value);
                 ViewBag.RestaurantId = restaurantId.Value;
                 return View("PendingMenuItems", pendingMenuItems);
